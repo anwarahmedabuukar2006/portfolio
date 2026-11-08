@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anwar Company</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-950 text-white min-h-screen">
+
+    <nav class="bg-slate-900 border-b border-slate-800 px-4 py-5">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+            <h1 class="text-2xl font-bold text-cyan-400">Anwar Company.</h1>
+            <span class="text-gray-400 text-sm">Products API</span>
+        </div>
+    </nav>
+
+    <section class="text-center px-4 py-12 sm:py-16">
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+            Our <span class="text-cyan-400">Products</span>
+        </h2>
+        <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto">
+            Explore amazing products from our API.
+        </p>
+    </section>
+
+    <section class="max-w-5xl mx-auto px-4 mb-10">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+            <input
+                type="text"
+                id="search"
+                placeholder="Search products..."
+                class="w-full p-4 rounded-xl bg-slate-800 border border-slate-700 outline-none focus:border-cyan-400 text-white"
+            >
+
+            <select
+                id="category"
+                class="w-full p-4 rounded-xl bg-slate-800 border border-slate-700 outline-none focus:border-cyan-400 text-white">
+
+                <option value="all">All Categories</option>
+
+            </select>
+
+        </div>
+    </section>
+
+    <p id="message" class="text-center text-cyan-400 mb-8 px-4">
+        Loading products...
+    </p>
+
+    <main class="max-w-7xl mx-auto px-4 pb-16">
+        <div id="products"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-7">
+        </div>
+    </main>
+
+    <script>
+
+        let dhammaan = [];
+
+        const search = document.getElementById("search");
+        const category = document.getElementById("category");
+        const message = document.getElementById("message");
+        const box = document.getElementById("products");
+
+        async function sooQaado() {
+
+            try {
+
+                message.textContent = "Loading products...";
+
+                const jawaab = await fetch(
+                    "https://dummyjson.com/products?limit=100"
+                );
+
+                if (!jawaab.ok) {
+                    throw new Error("API Error");
+                }
+
+                const data = await jawaab.json();
+
+                dhammaan = data.products;
+
+                categories();
+
+                raadi();
+
+            }
+
+            catch (error) {
+
+                message.textContent = "Cilad ayaa dhacday!";
+
+                console.error(error);
+
+            }
+
+        }
+
+        function categories() {
+
+            const types = [...new Set(
+                dhammaan.map(item => item.category)
+            )];
+
+            types.forEach(function(type) {
+
+                const option = document.createElement("option");
+
+                option.value = type;
+                option.textContent = type;
+
+                category.appendChild(option);
+
+            });
+
+        }
+
+        function muuji(products) {
+
+            box.innerHTML = "";
+
+            if (products.length === 0) {
+
+                box.textContent = "Product lama helin.";
+
+                return;
+
+            }
+
+            products.forEach(function(item) {
+
+                const card = document.createElement("div");
+
+                card.className =
+                    "bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 hover:border-cyan-400 transition duration-300 hover:-translate-y-2";
+
+                const image = document.createElement("img");
+
+                image.src = item.thumbnail;
+                image.alt = item.title;
+                image.loading = "lazy";
+
+                image.className =
+                    "w-full h-48 sm:h-56 object-cover bg-white";
+
+                const content = document.createElement("div");
+
+                content.className = "p-4 sm:p-5";
+
+                const categoryName = document.createElement("span");
+
+                categoryName.className =
+                    "text-xs text-cyan-400 bg-slate-800 px-3 py-1 rounded-full";
+
+                categoryName.textContent = item.category;
+
+                const title = document.createElement("h3");
+
+                title.className =
+                    "text-lg font-bold my-3 text-white";
+
+                title.textContent = item.title;
+
+                const description = document.createElement("p");
+
+                description.className =
+                    "text-gray-400 text-sm mb-4";
+
+                description.textContent =
+                    item.description.length > 75
+                    ? item.description.slice(0, 75) + "..."
+                    : item.description;
+
+                const footer = document.createElement("div");
+
+                footer.className =
+                    "flex justify-between items-center gap-2";
+
+                const price = document.createElement("span");
+
+                price.className =
+                    "text-cyan-400 font-bold text-xl";
+
+                price.textContent = "$" + item.price;
+
+                const rating = document.createElement("span");
+
+                rating.className =
+                    "text-yellow-400 text-sm";
+
+                rating.textContent = "★ " + item.rating;
+
+                footer.append(price, rating);
+
+                content.append(
+                    categoryName,
+                    title,
+                    description,
+                    footer
+                );
+
+                card.append(image, content);
+
+                box.appendChild(card);
+
+            });
+
+        }
+
+        function raadi() {
+
+            const searchValue = search.value.toLowerCase().trim();
+
+            const selected = category.value;
+
+            const result = dhammaan.filter(function(item) {
+
+                const magac = item.title
+                    .toLowerCase()
+                    .includes(searchValue);
+
+                const qayb = selected === "all" ||
+                    item.category === selected;
+
+                return magac && qayb;
+
+            });
+
+            muuji(result);
+
+            message.textContent =
+                result.length + " Products la helay";
+
+        }
+
+        search.addEventListener("input", raadi);
+
+        category.addEventListener("change", raadi);
+
+        sooQaado();
+
+    </script>
+
+</body>
+
+</html>

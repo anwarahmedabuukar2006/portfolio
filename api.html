@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        fetch("https://dummyjson.com/products/category/laptops")
+            .then((Response) => {
+                return Response.json();
+            })
+            .then((data) => {
+                console.log(data.products);
+                data.products.forEach((element) => {
+                    document.body.innerHTML += `<img src="${element.thumbnail}" width="200">`;
+                })
+            }) 
+    </script>
+</body>
+
+</html>
